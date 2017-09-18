@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="sfpw-kyland-1.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/sfpw-kyland-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jacorb.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

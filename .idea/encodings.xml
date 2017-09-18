@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
+    <file url="file://$PROJECT_DIR$/src/CosNotification/StructuredEvent.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/DongtuClient.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/KYLAND_pmMgr/Process_T.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/KYLAND_pmMgr/Resourcemonitor_T.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/Main.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/emsMgr/EMSMgr_I.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/emsMgr/EMSMgr_IHelper.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/emsMgr/EMSMgr_IHolder.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/emsMgr/EMSMgr_IOperations.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/emsMgr/EMS_T.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/emsMgr/EMS_THelper.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/emsMgr/EMS_THolder.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/emsMgr/_EMSMgr_IStub.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/notifications/EventList_THolder.java" charset="GBK" />
+  </component>
+</project>
