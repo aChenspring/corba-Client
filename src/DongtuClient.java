@@ -52,7 +52,7 @@ public class DongtuClient {
 
     public DongtuClient(String p_EMSID) {
         //m_ip = "172.18.1.8";
-        m_ip = "192.168.0.99";
+        m_ip = "192.168.50.199";
         m_userName = "admin";
         m_passWord = "admin";
         int m_ConnectCount = 0;
@@ -110,25 +110,25 @@ public class DongtuClient {
             m_emsSession_I = emsSessionHldr.value;
         }
         //获取所有活动告警  OK
-        getAllEMSAndMEActiveAlarms(m_emsSession_I);
+        //getAllEMSAndMEActiveAlarms(m_emsSession_I);
 
-        //获取所有故障监视器信息 OK
-        Resourcemonitor_T[] resourcemonitor_Ts = getAllResourceMonitor(m_emsSession_I);
+        //获取所有故障监视器信息 OK7
+        //Resourcemonitor_T[] resourcemonitor_Ts = getAllResourceMonitor(m_emsSession_I);
 
         //设置故障阈值  //设置故障阈值 需要先获取故障阈值模型
         //获取第一个阈值模型 OK
-        Resourcemonitor_T resourcemonitor_T = resourcemonitor_Ts[3];
+        //Resourcemonitor_T resourcemonitor_T = resourcemonitor_Ts[3];
         //设置这个阈值模型主要阈值
-        resourcemonitor_T.majorLimit = "50";
-        resourcemonitor_T.minorLimit = "40";
-        updateResourceMonitor(m_emsSession_I, resourcemonitor_T);
+        //resourcemonitor_T.majorLimit = "50";
+       // resourcemonitor_T.minorLimit = "40";
+        //updateResourceMonitor(m_emsSession_I, resourcemonitor_T);
 
         //获取所有资源类型 OK
-        String deviceid = "1";
+        String deviceid = "15";
         //String resourceTypes = getAllResourceType(m_emsSession_I, deviceid);
 
         //获取所有资源名称 OK
-        //String resourceNames = getAllResourceName(m_emsSession_I, deviceid);
+       String resourceNames = getAllResourceName(m_emsSession_I, deviceid);
 
         //获取所有性能监视器名称 OK
         String resourceType = "CPU"+encoding("使用率");
@@ -144,12 +144,22 @@ public class DongtuClient {
         PMResourceIterator_IHolder pmIt = new PMResourceIterator_IHolder();
         //getAllHisCurrentPMData(m_emsSession_I, deviceidString, resourceName, monitorItem, how_many, startTime, endTime, pmIt);
 
-        //获取所有进程 OK
-         //Process_T[] process_ts = FindAllProcess(m_emsSession_I, deviceid);
-
+        //获取指定设备实时性能数据
+       // String deviceidString = "1";
+        System.out.println("笔记本电脑——————————————————————————————————————————————————");
+        //PMResource_T[] pmResource_Ts = getAllCurrentPMDataNew(m_emsSession_I, deviceidString);
         //新增进程 OK
         Process_T process = new Process_T();
+        process.name = "dldo.exe";
+        process.state = "1";
+        process.dn = "";
+        process.id = 1;
+        process.type ="1";
+        process.index = "";
         //addProcess(m_emsSession_I, process,deviceid);
+
+        //获取所有进程 OK
+      //Process_T[] process_ts = FindAllProcess(m_emsSession_I, deviceid);
 
         //删除进程 OK
        // deleteProcess(m_emsSession_I, process_ts[1],deviceid);
@@ -283,12 +293,10 @@ public class DongtuClient {
             }
             KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
             //ResourcemonitorList_THolder resourcemonitorList_T = new ResourcemonitorList_THolder();
-            if (kYLAND_pmMgr_I != null) {
-
+            if (kYLAND_pmMgr_I != null)
+            {
                 kYLAND_pmMgr_I.updateResourceMonitor(getSelectPara(), resourcemonitor_T);
             }
-
-
         } catch (ProcessingFailureException e) {
             e.printStackTrace();
         }
@@ -322,7 +330,7 @@ public class DongtuClient {
                 kYLAND_pmMgr_I.getAllCurrentPMDataNew(pmtpSelect_Ts, pmResourceList);
             }
             for (int i = 0; i < pmResourceList.value.length; i++) {
-                System.out.println(pmResourceList.value[i].toString());
+                ToGBKEncode(pmResourceList.value[i].toString());
             }
             return pmResourceList.value;
         } catch (ProcessingFailureException e) {
@@ -584,7 +592,7 @@ public class DongtuClient {
         String str = args;
         try {
             byte[] temp = str.getBytes("iso8859-1");//这里写原编码方式
-            String newStr = new String(temp, "gbk");//这里写转换后的编码方式
+            String newStr = new String(temp, "GBK");//这里写转换后的编码方式
             System.out.println(newStr);
         } catch (UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
