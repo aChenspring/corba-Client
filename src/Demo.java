@@ -3,7 +3,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import KYLAND_pmMgr.*;
+
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Object;
 import org.omg.CORBA.Policy;
@@ -18,56 +18,38 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
 import com.sun.org.apache.regexp.internal.recompile;
+import org.tmforum.mtnm.common.Common_I;
+import org.tmforum.mtnm.common.Common_IHolder;
+import org.tmforum.mtnm.emsMgr.EMSMgr_I;
+import org.tmforum.mtnm.emsMgr.EMSMgr_IHelper;
+import org.tmforum.mtnm.emsMgr.EMS_T;
+import org.tmforum.mtnm.emsMgr.EMS_THolder;
+import org.tmforum.mtnm.emsSession.EmsSession_I;
+import org.tmforum.mtnm.emsSession.EmsSession_IHolder;
+import org.tmforum.mtnm.emsSessionFactory.EmsSessionFactory_I;
+import org.tmforum.mtnm.emsSessionFactory.EmsSessionFactory_IHelper;
+import org.tmforum.mtnm.globaldefs.NameAndStringValue_T;
+import org.tmforum.mtnm.globaldefs.ProcessingFailureException;
+import org.tmforum.mtnm.managedElement.ManagedElementIterator_IHolder;
+import org.tmforum.mtnm.managedElement.ManagedElementList_THolder;
+import org.tmforum.mtnm.managedElement.ManagedElement_T;
+import org.tmforum.mtnm.managedElement.ManagedElement_THolder;
+import org.tmforum.mtnm.managedElementManager.ManagedElementMgr_I;
+import org.tmforum.mtnm.managedElementManager.ManagedElementMgr_IHelper;
+import org.tmforum.mtnm.multiLayerSubnetwork.*;
+import org.tmforum.mtnm.nmsSession.NmsSession_I;
+import org.tmforum.mtnm.nmsSession.NmsSession_IPOATie;
+import org.tmforum.mtnm.notifications.EventIterator_IHolder;
 
-import KYLAND_alarmMgr.KYLAND_alarmMgr_I;
-import KYLAND_alarmMgr.KYLAND_alarmMgr_IHelper;
+import org.tmforum.mtnm.notifications.EventList_THolder;
+import org.tmforum.mtnm.notifications.PerceivedSeverity_T;
+import org.tmforum.mtnm.performance.*;
+import org.tmforum.mtnm.terminationPoint.TerminationPointIterator_IHolder;
+import org.tmforum.mtnm.terminationPoint.TerminationPointList_THolder;
+import org.tmforum.mtnm.topologicalLink.TopologicalLinkIterator_IHolder;
+import org.tmforum.mtnm.topologicalLink.TopologicalLinkList_THolder;
+import org.tmforum.mtnm.topologicalLink.TopologicalLink_T;
 
-import performance.PMDataIterator_IHolder;
-import performance.PMDataList_THolder;
-import performance.PMTPSelect_T;
-import performance.PerformanceManagementMgr_I;
-import performance.PerformanceManagementMgr_IHelper;
-
-
-import subnetworkConnection.ResourceList_THolder;
-import terminationPoint.TerminationPointIterator_I;
-import terminationPoint.TerminationPointIterator_IHolder;
-import terminationPoint.TerminationPointList_THolder;
-import topologicalLink.TopologicalLinkIterator_IHolder;
-import topologicalLink.TopologicalLinkList_THolder;
-import topologicalLink.TopologicalLink_T;
-
-import common.Common_I;
-import common.Common_IHolder;
-import emsMgr.EMSMgr_I;
-import emsMgr.EMSMgr_IHelper;
-import emsMgr.EMS_T;
-import emsMgr.EMS_THolder;
-import emsSession.EmsSession_I;
-import emsSession.EmsSession_IHolder;
-import emsSessionFactory.EmsSessionFactory_I;
-import emsSessionFactory.EmsSessionFactory_IHelper;
-import equipment.EquipmentInventoryMgr_I;
-import equipment.EquipmentInventoryMgr_IHelper;
-import globaldefs.NameAndStringValue_T;
-import globaldefs.ProcessingFailureException;
-import managedElement.ManagedElementIterator_IHolder;
-import managedElement.ManagedElementList_THolder;
-import managedElement.ManagedElement_T;
-import managedElement.ManagedElement_THolder;
-import managedElementManager.ManagedElementMgr_I;
-import managedElementManager.ManagedElementMgr_IHelper;
-import multiLayerSubnetwork.MultiLayerSubnetworkMgr_I;
-import multiLayerSubnetwork.MultiLayerSubnetworkMgr_IHelper;
-import multiLayerSubnetwork.MultiLayerSubnetwork_T;
-import multiLayerSubnetwork.MultiLayerSubnetwork_THolder;
-import multiLayerSubnetwork.SubnetworkIterator_IHolder;
-import multiLayerSubnetwork.SubnetworkList_THolder;
-import nmsSession.NmsSession_I;
-import nmsSession.NmsSession_IPOATie;
-import notifications.EventIterator_IHolder;
-import notifications.EventList_THolder;
-import notifications.PerceivedSeverity_T;
 
 public class Demo {
     public static void main(String[] args) {
@@ -126,13 +108,13 @@ public class Demo {
             //例3：查询EMS网管所有顶层子网
             //getAllTopoLevelSubnetworks(emsSession_I);
             //例4：获取EMS网管和所有网元的活动告警
-            //*getAllEMSAndMEActiveAlarms(emsSession_I);
+            //getAllEMSAndMEActiveAlarms(emsSession_I);
             //例5：获取EMS网管顶层所有连接
-            getAllTopLevelTopologicLinks(emsSession_I);
+            //getAllTopLevelTopologicLinks(emsSession_I);
 
             //multiLayerSubnetwork.idl
             //例6：获取子网下所有网元
-            //String subnetname = "1";
+            String subnetname = "1";
             //getMultiLayerSubnetworkAllManagedElements(subnetname,emsSession_I);
             //例7：获取子网下所有网元连线
             //getSubnetAllTopologicalLinks(subnetname,emsSession_I);
@@ -144,19 +126,19 @@ public class Demo {
             //例2：获取所有网元
             //getManagerElepments(emsSession_I);
             //例9：获取指定网元
-            //String name = "5";//设备id
+            String name = "6";//设备id
             //getManagedElement(name,emsSession_I);
             //例10：获取指定网元的告警
             //getAllActiveAlarms(name,emsSession_I);
 
             //equipment.idl
             //获取设备的端口
-            //getAllSupportedPTPs(name ,emsSession_I);
+            //--------------getAllPTPs(name ,emsSession_I);
 
             //performance.idl
             //获取指定端口当前性能
-            //String port = "/rack=1/shelf=1/slot=1/port=8";
-            //ygetPTPAllCurrentPMData(name,port,emsSession_I);
+            String port = "/rack=1/shelf=1/slot=1/port=8";
+            getPTPAllCurrentPMData(name,port,emsSession_I);
 
             //KYLAND_alarmMgr.idl
             //获取EMS历史告警
@@ -193,7 +175,7 @@ public class Demo {
             int how_many = 100;
             String startTime = "";
             String endTime = "";
-            PMResourceIterator_IHolder pmIt = new PMResourceIterator_IHolder();
+           // PMResourceIterator_IHolder pmIt = new PMResourceIterator_IHolder();
             //getAllHisCurrentPMData(emsSession_I, deviceidString, resourceName, monitorItem, how_many, startTime, endTime, pmIt);
 
             //获取所有资源类型
@@ -208,7 +190,7 @@ public class Demo {
             //String resourceMonitorName = getAllResourceMonitorName(emsSession_I, deviceid, resourceType);
 
             //新增进程
-            Process_T process = new Process_T();
+            //Process_T process = new Process_T();
             //addProcess(emsSession_I, process, deviceid);
 
             //删除进程
@@ -221,120 +203,120 @@ public class Demo {
         }
     }
 
-    private static void getManagerElementPMData(String name, EmsSession_I emsSession_I) {
-        try {
-            Common_IHolder comHldr = new Common_IHolder();
-            Common_I mgrIntf = null;
-            if (emsSession_I != null) {
-                //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
-                mgrIntf = comHldr.value;
-            }
-            if (mgrIntf == null) {
-                return;
-            }
-            KYLAND_pmMgr_I emsMgr = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
-
-            int how_many = 100;
-            PMTPSelect_T[] selectMos = new PMTPSelect_T[1];
-            NameAndStringValue_T[] array = new NameAndStringValue_T[2];
-            array[0] = new NameAndStringValue_T("EMS", "KYLAND/kyvision");
-            array[1] = new NameAndStringValue_T("ManagedElement", name);
-            selectMos[0].name = array;
-            PMDataList_THolder pmList = new PMDataList_THolder();
-            PMDataIterator_IHolder pmIt = new PMDataIterator_IHolder();
-
-
-            if (emsMgr != null) {
-                emsMgr.getAllCurrentPMData(selectMos, how_many, pmList, pmIt);
-            }
-
-            System.out.println("pmList.value.length=" + pmList.value.length);
-
-        } catch (ProcessingFailureException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private static void getMEHisAlarms(String name, EmsSession_I emsSession_I) {
-        try {
-            Common_IHolder comHldr = new Common_IHolder();
-            Common_I mgrIntf = null;
-            if (emsSession_I != null) {
-                //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("KYLAND_alarmMgr", comHldr);
-                mgrIntf = comHldr.value;
-            }
-            if (mgrIntf == null) {
-                return;
-            }
-            KYLAND_alarmMgr_I emsMgr = KYLAND_alarmMgr_IHelper.narrow(mgrIntf);
+//    private static void getManagerElementPMData(String name, EmsSession_I emsSession_I) {
+//        try {
+//            Common_IHolder comHldr = new Common_IHolder();
+//            Common_I mgrIntf = null;
+//            if (emsSession_I != null) {
+//                //通过Session获取对应的管理模块的引用
+//                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
+//                mgrIntf = comHldr.value;
+//            }
+//            if (mgrIntf == null) {
+//                return;
+//            }
+//            KYLAND_pmMgr_I emsMgr = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
+//
+//            int how_many = 100;
+//            PMTPSelect_T[] selectMos = new PMTPSelect_T[1];
+//            NameAndStringValue_T[] array = new NameAndStringValue_T[2];
+//            array[0] = new NameAndStringValue_T("EMS", "KYLAND/kyvision");
+//            array[1] = new NameAndStringValue_T("ManagedElement", name);
+//            selectMos[0].name = array;
+//            PMDataList_THolder pmList = new PMDataList_THolder();
+//            PMDataIterator_IHolder pmIt = new PMDataIterator_IHolder();
+//
+//
+//            if (emsMgr != null) {
+//                emsMgr.getAllCurrentPMData(selectMos, how_many, pmList, pmIt);
+//            }
+//
+//            System.out.println("pmList.value.length=" + pmList.value.length);
+//
+//        } catch (ProcessingFailureException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
-            String[] excludeProbCauseList = new String[0];
-            PerceivedSeverity_T[] excludeSeverityList = new PerceivedSeverity_T[0];
-            int[] alarmtypeList = new int[0];
-            EventList_THolder eventList = new EventList_THolder();
-            EventIterator_IHolder eventIt = new EventIterator_IHolder();
-            int how_many = 100;
-            NameAndStringValue_T[] array = new NameAndStringValue_T[2];
-            array[0] = new NameAndStringValue_T("EMS", "KYLAND/kyvision");
-            array[1] = new NameAndStringValue_T("ManagedElement", name);
-
-            DateFormat stdFormatterInMillis = new SimpleDateFormat("yyyyMMddHHmmss");
-            String endtime = stdFormatterInMillis.format(new Date());
-            String starttime = "20170601000000";
-            if (emsMgr != null) {
-                emsMgr.getMEHisAlarms(excludeProbCauseList, excludeSeverityList, alarmtypeList, array, how_many, starttime, endtime, eventList, eventIt);
-            }
-
-            System.out.println("eventList.value.length=" + eventList.value.length);
-
-        } catch (ProcessingFailureException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private static void getAllHisAlarms(EmsSession_I emsSession_I) {
-
-        try {
-            Common_IHolder comHldr = new Common_IHolder();
-            Common_I mgrIntf = null;
-            if (emsSession_I != null) {
-                //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("KYLAND_alarmMgr", comHldr);
-                mgrIntf = comHldr.value;
-            }
-            if (mgrIntf == null) {
-                return;
-            }
-            KYLAND_alarmMgr_I emsMgr = KYLAND_alarmMgr_IHelper.narrow(mgrIntf);
-
-
-            String[] excludeProbCauseList = new String[0];
-            PerceivedSeverity_T[] excludeSeverityList = new PerceivedSeverity_T[0];
-            int[] alarmtypeList = new int[0];
-            EventList_THolder eventList = new EventList_THolder();
-            EventIterator_IHolder eventIt = new EventIterator_IHolder();
-            int how_many = 100;
+//    private static void getMEHisAlarms(String name, EmsSession_I emsSession_I) {
+//        try {
+//            Common_IHolder comHldr = new Common_IHolder();
+//            Common_I mgrIntf = null;
+//            if (emsSession_I != null) {
+//                //通过Session获取对应的管理模块的引用
+//                emsSession_I.getManager("KYLAND_alarmMgr", comHldr);
+//                mgrIntf = comHldr.value;
+//            }
+//            if (mgrIntf == null) {
+//                return;
+//            }
+//            KYLAND_alarmMgr_I emsMgr = KYLAND_alarmMgr_IHelper.narrow(mgrIntf);
+//
+//
+//            String[] excludeProbCauseList = new String[0];
+//            PerceivedSeverity_T[] excludeSeverityList = new PerceivedSeverity_T[0];
+//            int[] alarmtypeList = new int[0];
+//            EventList_THolder eventList = new EventList_THolder();
+//            EventIterator_IHolder eventIt = new EventIterator_IHolder();
+//            int how_many = 100;
+//            NameAndStringValue_T[] array = new NameAndStringValue_T[2];
+//            array[0] = new NameAndStringValue_T("EMS", "KYLAND/kyvision");
+//            array[1] = new NameAndStringValue_T("ManagedElement", name);
+//
+//            DateFormat stdFormatterInMillis = new SimpleDateFormat("yyyyMMddHHmmss");
+//            String endtime = stdFormatterInMillis.format(new Date());
+//            String starttime = "20170601000000";
+//            if (emsMgr != null) {
+//                emsMgr.getMEHisAlarms(excludeProbCauseList, excludeSeverityList, alarmtypeList, array, how_many, starttime, endtime, eventList, eventIt);
+//            }
+//
+//            System.out.println("eventList.value.length=" + eventList.value.length);
+//
+//        } catch (ProcessingFailureException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
-            DateFormat stdFormatterInMillis = new SimpleDateFormat("yyyyMMddHHmmss");
-            String endtime = stdFormatterInMillis.format(new Date());
-            String starttime = "20170601000000";
-            if (emsMgr != null) {
-                emsMgr.getAllHisAlarms(excludeProbCauseList, excludeSeverityList, alarmtypeList, how_many, starttime, endtime, eventList, eventIt);
-            }
-
-            System.out.println("eventList.value.length=" + eventList.value.length);
-
-        } catch (ProcessingFailureException e) {
-            e.printStackTrace();
-        }
-
-    }
+//    private static void getAllHisAlarms(EmsSession_I emsSession_I) {
+//
+//        try {
+//            Common_IHolder comHldr = new Common_IHolder();
+//            Common_I mgrIntf = null;
+//            if (emsSession_I != null) {
+//                //通过Session获取对应的管理模块的引用
+//                emsSession_I.getManager("KYLAND_alarmMgr", comHldr);
+//                mgrIntf = comHldr.value;
+//            }
+//            if (mgrIntf == null) {
+//                return;
+//            }
+//            KYLAND_alarmMgr_I emsMgr = KYLAND_alarmMgr_IHelper.narrow(mgrIntf);
+//
+//
+//            String[] excludeProbCauseList = new String[0];
+//            PerceivedSeverity_T[] excludeSeverityList = new PerceivedSeverity_T[0];
+//            int[] alarmtypeList = new int[0];
+//            EventList_THolder eventList = new EventList_THolder();
+//            EventIterator_IHolder eventIt = new EventIterator_IHolder();
+//            int how_many = 100;
+//
+//
+//            DateFormat stdFormatterInMillis = new SimpleDateFormat("yyyyMMddHHmmss");
+//            String endtime = stdFormatterInMillis.format(new Date());
+//            String starttime = "20170601000000";
+//            if (emsMgr != null) {
+//                emsMgr.getAllHisAlarms(excludeProbCauseList, excludeSeverityList, alarmtypeList, how_many, starttime, endtime, eventList, eventIt);
+//            }
+//
+//            System.out.println("eventList.value.length=" + eventList.value.length);
+//
+//        } catch (ProcessingFailureException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
 
     private static void getPTPAllCurrentPMData(String name, String port, EmsSession_I emsSession_I) {
         try {
@@ -342,7 +324,7 @@ public class Demo {
             Common_I mgrIntf = null;
             if (emsSession_I != null) {
                 //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("EquipmentInventory", comHldr);
+                emsSession_I.getManager("PerformanceManagement", comHldr);
                 mgrIntf = comHldr.value;
             }
             if (mgrIntf == null) {
@@ -358,9 +340,21 @@ public class Demo {
             array[0] = new NameAndStringValue_T("EMS", "KYLAND/kyvision");
             array[1] = new NameAndStringValue_T("ManagedElement", name);
             array[2] = new NameAndStringValue_T("PTP", port);
-
-            selectPorts[0].name = array;
-
+            PMTPSelect_T pmtpSelect_t = new PMTPSelect_T();
+            pmtpSelect_t.name = array;
+            String s = "s";
+            String[] strings = new String[1];
+            strings[0] = s;
+            pmtpSelect_t.granularityList = strings;
+            String s1 = "s";
+            String[] strings1 = new String[1];
+            strings1[0] = s1;
+            pmtpSelect_t.pMLocationList = strings1;
+            short sh =1;
+            short[] shorts = new short[1];
+            shorts[0] = sh;
+            pmtpSelect_t.layerRateList = shorts;
+            selectPorts[0] = pmtpSelect_t;
             PMDataList_THolder pmList = new PMDataList_THolder();
             PMDataIterator_IHolder pmIt = new PMDataIterator_IHolder();
             String[] parameter = new String[]{"ifIndex", "ifDescr", "ifOperstatus", "ifInOctets", "ifInUcastPkts", "ifInNUcastPkts", "ifInDiscards", "ifInErrors",
@@ -377,28 +371,32 @@ public class Demo {
         }
     }
 
-    private static void getAllSupportedPTPs(String name, EmsSession_I emsSession_I) {
+    private static void getAllPTPs(String name, EmsSession_I emsSession_I) {
         try {
             Common_IHolder comHldr = new Common_IHolder();
             Common_I mgrIntf = null;
             if (emsSession_I != null) {
                 //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("EquipmentInventory", comHldr);
+                emsSession_I.getManager("ManagedElement", comHldr);
                 mgrIntf = comHldr.value;
             }
             if (mgrIntf == null) {
                 return;
             }
-            EquipmentInventoryMgr_I emsMgr = EquipmentInventoryMgr_IHelper.narrow(mgrIntf);
+            ManagedElementMgr_I emsMgr = ManagedElementMgr_IHelper.narrow(mgrIntf);
             ManagedElement_THolder meLstTH = new ManagedElement_THolder();
             NameAndStringValue_T[] array = new NameAndStringValue_T[2];
             array[0] = new NameAndStringValue_T("EMS", "KYLAND/kyvision");
             array[1] = new NameAndStringValue_T("ManagedElement", name);
             TerminationPointList_THolder eventList = new TerminationPointList_THolder();
             TerminationPointIterator_IHolder eventIt = new TerminationPointIterator_IHolder();
+            short[] lay = new short[1];
+            lay[0] = 1;
+            short[] con = new short[1];
+            con[0] = 1;
             int how_many = 100;
             if (emsMgr != null) {
-                emsMgr.getAllSupportedPTPs(array, how_many, eventList, eventIt);
+                emsMgr.getAllPTPs(array,lay,con, how_many, eventList, eventIt);
             }
 
             System.out.println("eventList.value.length=" + eventList.value.length);
@@ -763,60 +761,60 @@ public class Demo {
     }
 
     //获取指定EMS的所有故障监视器名称
-    private static void getAllResourceMonitorName(EmsSession_I emsSession_I) {
-        try {
-            Common_IHolder comHldr = new Common_IHolder();
-            Common_I mgrIntf = null;
-            if (emsSession_I != null) {
-                //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
-                mgrIntf = comHldr.value;
-            }
-            if (mgrIntf == null) {
-                return;
-            }
-            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
-            StringHolder resourceMonitorName = new StringHolder();
-            if (kYLAND_pmMgr_I != null) {
-
-                kYLAND_pmMgr_I.getAllResourceMonitorName(getSelectPara(), resourceMonitorName);
-            }
-            System.out.println(resourceMonitorName.value);
-
-        } catch (ProcessingFailureException e) {
-            e.printStackTrace();
-        }
-    }
-
-    //获取指定EMS的所有故障监视器
-    private static Resourcemonitor_T[] getAllResourceMonitor(EmsSession_I emsSession_I) {
-        try {
-            Common_IHolder comHldr = new Common_IHolder();
-            Common_I mgrIntf = null;
-            if (emsSession_I != null) {
-                //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
-                mgrIntf = comHldr.value;
-            }
-            if (mgrIntf == null) {
-                return null;
-            }
-            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
-            ResourcemonitorList_THolder resourcemonitorList_T = new ResourcemonitorList_THolder();
-            if (kYLAND_pmMgr_I != null) {
-
-                kYLAND_pmMgr_I.getResourceMonitor(getSelectPara(), resourcemonitorList_T);
-            }
-            for (int i = 0; i < resourcemonitorList_T.value.length; i++) {
-                System.out.println(resourcemonitorList_T.value[i].toString());
-            }
-            return resourcemonitorList_T.value;
-
-        } catch (ProcessingFailureException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    private static void getAllResourceMonitorName(EmsSession_I emsSession_I) {
+//        try {
+//            Common_IHolder comHldr = new Common_IHolder();
+//            Common_I mgrIntf = null;
+//            if (emsSession_I != null) {
+//                //通过Session获取对应的管理模块的引用
+//                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
+//                mgrIntf = comHldr.value;
+//            }
+//            if (mgrIntf == null) {
+//                return;
+//            }
+//            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
+//            StringHolder resourceMonitorName = new StringHolder();
+//            if (kYLAND_pmMgr_I != null) {
+//
+//                kYLAND_pmMgr_I.getAllResourceMonitorName(getSelectPara(), resourceMonitorName);
+//            }
+//            System.out.println(resourceMonitorName.value);
+//
+//        } catch (ProcessingFailureException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    //获取指定EMS的所有故障监视器
+//    private static Resourcemonitor_T[] getAllResourceMonitor(EmsSession_I emsSession_I) {
+//        try {
+//            Common_IHolder comHldr = new Common_IHolder();
+//            Common_I mgrIntf = null;
+//            if (emsSession_I != null) {
+//                //通过Session获取对应的管理模块的引用
+//                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
+//                mgrIntf = comHldr.value;
+//            }
+//            if (mgrIntf == null) {
+//                return null;
+//            }
+//            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
+//            ResourcemonitorList_THolder resourcemonitorList_T = new ResourcemonitorList_THolder();
+//            if (kYLAND_pmMgr_I != null) {
+//
+//                kYLAND_pmMgr_I.getResourceMonitor(getSelectPara(), resourcemonitorList_T);
+//            }
+//            for (int i = 0; i < resourcemonitorList_T.value.length; i++) {
+//                System.out.println(resourcemonitorList_T.value[i].toString());
+//            }
+//            return resourcemonitorList_T.value;
+//
+//        } catch (ProcessingFailureException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
     private static void printSubnet_T(MultiLayerSubnetwork_T[] ems_T) {
         System.out.println("******************************************************");
@@ -904,261 +902,261 @@ public class Demo {
         return pMTPSelect_T;
     }
 
-    //设置故障阈值
-    private static void updateResourceMonitor(EmsSession_I emsSession_I, Resourcemonitor_T resourcemonitor_T) {
-        try {
-            Common_IHolder comHldr = new Common_IHolder();
-            Common_I mgrIntf = null;
-            if (emsSession_I != null) {
-                //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
-                mgrIntf = comHldr.value;
-            }
-            if (mgrIntf == null) {
-                return;
-            }
-            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
-            //ResourcemonitorList_THolder resourcemonitorList_T = new ResourcemonitorList_THolder();
-            if (kYLAND_pmMgr_I != null) {
-
-                kYLAND_pmMgr_I.updateResourceMonitor(getSelectPara(), resourcemonitor_T);
-            }
-
-
-        } catch (ProcessingFailureException e) {
-            e.printStackTrace();
-        }
-    }
-
-    //获取实时性能数据  deviceid
-    private static PMResource_T[] getAllCurrentPMDataNew(EmsSession_I emsSession_I, String deviceid) {
-        try {
-            Common_IHolder comHldr = new Common_IHolder();
-            Common_I mgrIntf = null;
-            if (emsSession_I != null) {
-                //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
-                mgrIntf = comHldr.value;
-            }
-            if (mgrIntf == null) {
-                return null;
-            }
-            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
-            PMResourceList_THolder pmResourceList = new PMResourceList_THolder();
-            if (kYLAND_pmMgr_I != null) {
-                PMTPSelect_T[] pmtpSelect_Ts = getSelectPara();
-                pmtpSelect_Ts[0].name[1].value = deviceid;
-                kYLAND_pmMgr_I.getAllCurrentPMDataNew(pmtpSelect_Ts, pmResourceList);
-            }
-            for (int i = 0; i < pmResourceList.value.length; i++) {
-                System.out.println(pmResourceList.value[i].toString());
-            }
-            return pmResourceList.value;
-        } catch (ProcessingFailureException e) {
-            e.printStackTrace();
-        }
-        return null;
-
-    }
-
-    //获取历史性能数据
-    private static PMResource_T[] getAllHisCurrentPMData(EmsSession_I emsSession_I, String deviceid, String resourceName, String monitorItem, int how_many, String startTime, String endTime, PMResourceIterator_IHolder pmIt) {
-        try {
-            Common_IHolder comHldr = new Common_IHolder();
-            Common_I mgrIntf = null;
-            if (emsSession_I != null) {
-                //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
-                mgrIntf = comHldr.value;
-            }
-            if (mgrIntf == null) {
-                return null;
-            }
-            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
-            PMResourceList_THolder pmResourceList = new PMResourceList_THolder();
-
-            if (kYLAND_pmMgr_I != null) {
-                PMTPSelect_T[] select_ts = getSelectPara();
-                select_ts[0].name[1].value = deviceid;
-                select_ts[0].name[2].value = resourceName;
-                select_ts[0].name[3].value = monitorItem;
-                kYLAND_pmMgr_I.getAllHisCurrentPMData(select_ts, how_many, startTime, endTime, pmResourceList, pmIt);
-            }
-            for (int i = 0; i < pmResourceList.value.length; i++) {
-                System.out.println(pmResourceList.value[i].toString());
-            }
-
-            return pmResourceList.value;
-        } catch (ProcessingFailureException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    //获取所有资源类型
-    private static String getAllResourceType(EmsSession_I emsSession_I, String deviceid) {
-        try {
-            Common_IHolder comHldr = new Common_IHolder();
-            Common_I mgrIntf = null;
-            if (emsSession_I != null) {
-                //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
-                mgrIntf = comHldr.value;
-            }
-            if (mgrIntf == null) {
-                return null;
-            }
-            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
-            StringHolder resourceTypes = new StringHolder();
-            if (kYLAND_pmMgr_I != null) {
-                PMTPSelect_T[] select_ts = getSelectPara();
-                select_ts[0].name[1].value = deviceid;
-                kYLAND_pmMgr_I.getAllResourceType(select_ts, resourceTypes);
-            }
-            System.out.println(resourceTypes.value.toString());
-            return resourceTypes.value;
-        } catch (ProcessingFailureException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    //获取所有资源名称
-    private static String getAllResourceName(EmsSession_I emsSession_I, String deviceid) {
-        try {
-            Common_IHolder comHldr = new Common_IHolder();
-            Common_I mgrIntf = null;
-            if (emsSession_I != null) {
-                //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
-                mgrIntf = comHldr.value;
-            }
-            if (mgrIntf == null) {
-                return null;
-            }
-            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
-            StringHolder resourceNames = new StringHolder();
-            if (kYLAND_pmMgr_I != null) {
-                PMTPSelect_T[] select_ts = getSelectPara();
-                select_ts[0].name[1].value = deviceid;
-                kYLAND_pmMgr_I.getAllResourceType(select_ts, resourceNames);
-            }
-            System.out.println(resourceNames.value.toString());
-            return resourceNames.value;
-        } catch (ProcessingFailureException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    //获取所有性能监视器名称
-    private static String getAllResourceMonitorName(EmsSession_I emsSession_I, String deviceid, String resourceType) {
-        try {
-            Common_IHolder comHldr = new Common_IHolder();
-            Common_I mgrIntf = null;
-            if (emsSession_I != null) {
-                //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
-                mgrIntf = comHldr.value;
-            }
-            if (mgrIntf == null) {
-                return null;
-            }
-            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
-            StringHolder resourceMonitorNames = new StringHolder();
-            if (kYLAND_pmMgr_I != null) {
-                PMTPSelect_T[] select_ts = getSelectPara();
-                select_ts[0].name[1].value = deviceid;
-                select_ts[0].name[2].value = resourceType;
-                select_ts[0].name[2].name = "resourceType";
-                kYLAND_pmMgr_I.getAllResourceType(select_ts, resourceMonitorNames);
-            }
-            System.out.println(resourceMonitorNames.value.toString());
-            return resourceMonitorNames.value;
-        } catch (ProcessingFailureException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    //新增进程
-    private static void addProcess(EmsSession_I emsSession_I, Process_T process, String deviceid) {
-        try {
-            Common_IHolder comHldr = new Common_IHolder();
-            Common_I mgrIntf = null;
-            if (emsSession_I != null) {
-                //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
-                mgrIntf = comHldr.value;
-            }
-            if (mgrIntf == null) {
-                return;
-            }
-            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
-
-            if (kYLAND_pmMgr_I != null) {
-                PMTPSelect_T[] select_ts = getSelectPara();
-                select_ts[0].name[1].value = deviceid;
-                kYLAND_pmMgr_I.addProcess(select_ts, process);
-            }
-
-        } catch (ProcessingFailureException e) {
-            e.printStackTrace();
-        }
-    }
-
-    //删除进程
-    private static void deleteProcess(EmsSession_I emsSession_I, Process_T process, String deviceid) {
-        try {
-            Common_IHolder comHldr = new Common_IHolder();
-            Common_I mgrIntf = null;
-            if (emsSession_I != null) {
-                //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
-                mgrIntf = comHldr.value;
-            }
-            if (mgrIntf == null) {
-                return;
-            }
-            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
-            if (kYLAND_pmMgr_I != null) {
-                PMTPSelect_T[] select_ts = getSelectPara();
-                select_ts[0].name[1].value = deviceid;
-                kYLAND_pmMgr_I.deleteProcess(select_ts, process);
-            }
-        } catch (ProcessingFailureException e) {
-            e.printStackTrace();
-        }
-    }
-
-    //获取所有进程
-    private static Process_T[] FindAllProcess(EmsSession_I emsSession_I, String deviceid) {
-        try {
-            Common_IHolder comHldr = new Common_IHolder();
-            Common_I mgrIntf = null;
-            if (emsSession_I != null) {
-                //通过Session获取对应的管理模块的引用
-                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
-                mgrIntf = comHldr.value;
-            }
-            if (mgrIntf == null) {
-                return null;
-            }
-            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
-            ProcessList_THolder processList_tHolder = new ProcessList_THolder();
-            if (kYLAND_pmMgr_I != null) {
-                PMTPSelect_T[] select_ts = getSelectPara();
-                select_ts[0].name[1].value = deviceid;
-                kYLAND_pmMgr_I.FindAllProcess(select_ts, processList_tHolder);
-            }
-            for (Process_T process_t : processList_tHolder.value) {
-                System.out.println(process_t.toString());
-            }
-            return processList_tHolder.value;
-        } catch (ProcessingFailureException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    //设置故障阈值
+//    private static void updateResourceMonitor(EmsSession_I emsSession_I, Resourcemonitor_T resourcemonitor_T) {
+//        try {
+//            Common_IHolder comHldr = new Common_IHolder();
+//            Common_I mgrIntf = null;
+//            if (emsSession_I != null) {
+//                //通过Session获取对应的管理模块的引用
+//                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
+//                mgrIntf = comHldr.value;
+//            }
+//            if (mgrIntf == null) {
+//                return;
+//            }
+//            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
+//            //ResourcemonitorList_THolder resourcemonitorList_T = new ResourcemonitorList_THolder();
+//            if (kYLAND_pmMgr_I != null) {
+//
+//                kYLAND_pmMgr_I.updateResourceMonitor(getSelectPara(), resourcemonitor_T);
+//            }
+//
+//
+//        } catch (ProcessingFailureException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    //获取实时性能数据  deviceid
+//    private static PMResource_T[] getAllCurrentPMDataNew(EmsSession_I emsSession_I, String deviceid) {
+//        try {
+//            Common_IHolder comHldr = new Common_IHolder();
+//            Common_I mgrIntf = null;
+//            if (emsSession_I != null) {
+//                //通过Session获取对应的管理模块的引用
+//                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
+//                mgrIntf = comHldr.value;
+//            }
+//            if (mgrIntf == null) {
+//                return null;
+//            }
+//            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
+//            PMResourceList_THolder pmResourceList = new PMResourceList_THolder();
+//            if (kYLAND_pmMgr_I != null) {
+//                PMTPSelect_T[] pmtpSelect_Ts = getSelectPara();
+//                pmtpSelect_Ts[0].name[1].value = deviceid;
+//                kYLAND_pmMgr_I.getAllCurrentPMDataNew(pmtpSelect_Ts, pmResourceList);
+//            }
+//            for (int i = 0; i < pmResourceList.value.length; i++) {
+//                System.out.println(pmResourceList.value[i].toString());
+//            }
+//            return pmResourceList.value;
+//        } catch (ProcessingFailureException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//
+//    }
+//
+//    //获取历史性能数据
+//    private static PMResource_T[] getAllHisCurrentPMData(EmsSession_I emsSession_I, String deviceid, String resourceName, String monitorItem, int how_many, String startTime, String endTime, PMResourceIterator_IHolder pmIt) {
+//        try {
+//            Common_IHolder comHldr = new Common_IHolder();
+//            Common_I mgrIntf = null;
+//            if (emsSession_I != null) {
+//                //通过Session获取对应的管理模块的引用
+//                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
+//                mgrIntf = comHldr.value;
+//            }
+//            if (mgrIntf == null) {
+//                return null;
+//            }
+//            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
+//            PMResourceList_THolder pmResourceList = new PMResourceList_THolder();
+//
+//            if (kYLAND_pmMgr_I != null) {
+//                PMTPSelect_T[] select_ts = getSelectPara();
+//                select_ts[0].name[1].value = deviceid;
+//                select_ts[0].name[2].value = resourceName;
+//                select_ts[0].name[3].value = monitorItem;
+//                kYLAND_pmMgr_I.getAllHisCurrentPMData(select_ts, how_many, startTime, endTime, pmResourceList, pmIt);
+//            }
+//            for (int i = 0; i < pmResourceList.value.length; i++) {
+//                System.out.println(pmResourceList.value[i].toString());
+//            }
+//
+//            return pmResourceList.value;
+//        } catch (ProcessingFailureException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+//
+//    //获取所有资源类型
+//    private static String getAllResourceType(EmsSession_I emsSession_I, String deviceid) {
+//        try {
+//            Common_IHolder comHldr = new Common_IHolder();
+//            Common_I mgrIntf = null;
+//            if (emsSession_I != null) {
+//                //通过Session获取对应的管理模块的引用
+//                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
+//                mgrIntf = comHldr.value;
+//            }
+//            if (mgrIntf == null) {
+//                return null;
+//            }
+//            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
+//            StringHolder resourceTypes = new StringHolder();
+//            if (kYLAND_pmMgr_I != null) {
+//                PMTPSelect_T[] select_ts = getSelectPara();
+//                select_ts[0].name[1].value = deviceid;
+//                kYLAND_pmMgr_I.getAllResourceType(select_ts, resourceTypes);
+//            }
+//            System.out.println(resourceTypes.value.toString());
+//            return resourceTypes.value;
+//        } catch (ProcessingFailureException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+//
+//    //获取所有资源名称
+//    private static String getAllResourceName(EmsSession_I emsSession_I, String deviceid) {
+//        try {
+//            Common_IHolder comHldr = new Common_IHolder();
+//            Common_I mgrIntf = null;
+//            if (emsSession_I != null) {
+//                //通过Session获取对应的管理模块的引用
+//                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
+//                mgrIntf = comHldr.value;
+//            }
+//            if (mgrIntf == null) {
+//                return null;
+//            }
+//            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
+//            StringHolder resourceNames = new StringHolder();
+//            if (kYLAND_pmMgr_I != null) {
+//                PMTPSelect_T[] select_ts = getSelectPara();
+//                select_ts[0].name[1].value = deviceid;
+//                kYLAND_pmMgr_I.getAllResourceType(select_ts, resourceNames);
+//            }
+//            System.out.println(resourceNames.value.toString());
+//            return resourceNames.value;
+//        } catch (ProcessingFailureException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+//
+//    //获取所有性能监视器名称
+//    private static String getAllResourceMonitorName(EmsSession_I emsSession_I, String deviceid, String resourceType) {
+//        try {
+//            Common_IHolder comHldr = new Common_IHolder();
+//            Common_I mgrIntf = null;
+//            if (emsSession_I != null) {
+//                //通过Session获取对应的管理模块的引用
+//                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
+//                mgrIntf = comHldr.value;
+//            }
+//            if (mgrIntf == null) {
+//                return null;
+//            }
+//            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
+//            StringHolder resourceMonitorNames = new StringHolder();
+//            if (kYLAND_pmMgr_I != null) {
+//                PMTPSelect_T[] select_ts = getSelectPara();
+//                select_ts[0].name[1].value = deviceid;
+//                select_ts[0].name[2].value = resourceType;
+//                select_ts[0].name[2].name = "resourceType";
+//                kYLAND_pmMgr_I.getAllResourceType(select_ts, resourceMonitorNames);
+//            }
+//            System.out.println(resourceMonitorNames.value.toString());
+//            return resourceMonitorNames.value;
+//        } catch (ProcessingFailureException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+//
+//    //新增进程
+//    private static void addProcess(EmsSession_I emsSession_I, Process_T process, String deviceid) {
+//        try {
+//            Common_IHolder comHldr = new Common_IHolder();
+//            Common_I mgrIntf = null;
+//            if (emsSession_I != null) {
+//                //通过Session获取对应的管理模块的引用
+//                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
+//                mgrIntf = comHldr.value;
+//            }
+//            if (mgrIntf == null) {
+//                return;
+//            }
+//            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
+//
+//            if (kYLAND_pmMgr_I != null) {
+//                PMTPSelect_T[] select_ts = getSelectPara();
+//                select_ts[0].name[1].value = deviceid;
+//                kYLAND_pmMgr_I.addProcess(select_ts, process);
+//            }
+//
+//        } catch (ProcessingFailureException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    //删除进程
+//    private static void deleteProcess(EmsSession_I emsSession_I, Process_T process, String deviceid) {
+//        try {
+//            Common_IHolder comHldr = new Common_IHolder();
+//            Common_I mgrIntf = null;
+//            if (emsSession_I != null) {
+//                //通过Session获取对应的管理模块的引用
+//                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
+//                mgrIntf = comHldr.value;
+//            }
+//            if (mgrIntf == null) {
+//                return;
+//            }
+//            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
+//            if (kYLAND_pmMgr_I != null) {
+//                PMTPSelect_T[] select_ts = getSelectPara();
+//                select_ts[0].name[1].value = deviceid;
+//                kYLAND_pmMgr_I.deleteProcess(select_ts, process);
+//            }
+//        } catch (ProcessingFailureException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    //获取所有进程
+//    private static Process_T[] FindAllProcess(EmsSession_I emsSession_I, String deviceid) {
+//        try {
+//            Common_IHolder comHldr = new Common_IHolder();
+//            Common_I mgrIntf = null;
+//            if (emsSession_I != null) {
+//                //通过Session获取对应的管理模块的引用
+//                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
+//                mgrIntf = comHldr.value;
+//            }
+//            if (mgrIntf == null) {
+//                return null;
+//            }
+//            KYLAND_pmMgr_I kYLAND_pmMgr_I = KYLAND_pmMgr_IHelper.narrow(mgrIntf);
+//            ProcessList_THolder processList_tHolder = new ProcessList_THolder();
+//            if (kYLAND_pmMgr_I != null) {
+//                PMTPSelect_T[] select_ts = getSelectPara();
+//                select_ts[0].name[1].value = deviceid;
+//                kYLAND_pmMgr_I.FindAllProcess(select_ts, processList_tHolder);
+//            }
+//            for (Process_T process_t : processList_tHolder.value) {
+//                System.out.println(process_t.toString());
+//            }
+//            return processList_tHolder.value;
+//        } catch (ProcessingFailureException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
 }

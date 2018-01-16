@@ -1,7 +1,8 @@
-import nmsSession.NmsSession_IOperations;
-import session.Session_I;
+import org.tmforum.mtnm.nmsSession.NmsSession_IOperations;
+import org.tmforum.mtnm.session.Session_I;
 
 public class SessionImpl implements NmsSession_IOperations {
+    @Override
     public void eventLossOccurred(String startTime, String notificationId) {
     }
 
@@ -20,17 +21,26 @@ public class SessionImpl implements NmsSession_IOperations {
      * <p>
      * <br> endTime: The time of the end of the event loss period, as determined by the EMS.
      **/
+    @Override
     public void eventLossCleared(String endTime) {
 
     }
 
+    @Override
+    public void alarmLossOccurred(String startTime, String notificationId) {
+
+    }
+
+    @Override
     public void endSession() {
 
     }
 
+    @Override
     public void ping() {
     }
 
+    @Override
     public Session_I associatedSession() {
         return null;
     }
