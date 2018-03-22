@@ -1,13 +1,12 @@
 
+import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
-import org.omg.CORBA.ORB;
+import org.omg.CORBA.*;
 import org.omg.CORBA.Object;
-import org.omg.CORBA.Policy;
-import org.omg.CORBA.StringHolder;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
@@ -18,6 +17,8 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
 import com.sun.org.apache.regexp.internal.recompile;
+import org.tmforum.mtnm.KYLAND_alarmMgr.KYLAND_alarmMgr_I;
+import org.tmforum.mtnm.KYLAND_alarmMgr.KYLAND_alarmMgr_IHelper;
 import org.tmforum.mtnm.common.Common_I;
 import org.tmforum.mtnm.common.Common_IHolder;
 import org.tmforum.mtnm.emsMgr.EMSMgr_I;
@@ -28,7 +29,10 @@ import org.tmforum.mtnm.emsSession.EmsSession_I;
 import org.tmforum.mtnm.emsSession.EmsSession_IHolder;
 import org.tmforum.mtnm.emsSessionFactory.EmsSessionFactory_I;
 import org.tmforum.mtnm.emsSessionFactory.EmsSessionFactory_IHelper;
+import org.tmforum.mtnm.equipment.EquipmentInventoryMgr_I;
+import org.tmforum.mtnm.equipment.EquipmentInventoryMgr_IHelper;
 import org.tmforum.mtnm.globaldefs.NameAndStringValue_T;
+import org.tmforum.mtnm.globaldefs.NamingAttributes_THelper;
 import org.tmforum.mtnm.globaldefs.ProcessingFailureException;
 import org.tmforum.mtnm.managedElement.ManagedElementIterator_IHolder;
 import org.tmforum.mtnm.managedElement.ManagedElementList_THolder;
@@ -50,20 +54,34 @@ import org.tmforum.mtnm.topologicalLink.TopologicalLinkIterator_IHolder;
 import org.tmforum.mtnm.topologicalLink.TopologicalLinkList_THolder;
 import org.tmforum.mtnm.topologicalLink.TopologicalLink_T;
 
-
 public class Demo {
     public static void main(String[] args) {
-        String ip = "192.168.50.199";
+        String ip = args[0];
         String user = "admin";
         String pw = "admin";
+        int m_ConnectCount = 0;
+        while (true) {
+            m_ConnectCount++;
+            try {
+                Thread.currentThread();
+                Thread.sleep(3000);
+                System.out.println("Conn " + m_ConnectCount + " Start ");
+                getConnect(ip, user, pw);
+                break;
+            } catch (Exception e) {
+                System.out.println(e);
+                continue;
+            }
+        }
+    }
+    public static void getConnect(String ip, String user, String pw) throws Exception {
         try {
-            //åˆå§‹åŒ–ORB
+            //³õÊ¼»¯ORB
             String[] strs = new String[2];
             strs[0] = "-ORBInitRef";
             strs[1] = ("NameService=corbaloc::" + ip + ":9900/NameService");
             ORB global_orb = ORB.init(strs, null);
-
-            //è·å–POA
+            //»ñÈ¡POA
             Object root_poa = global_orb.resolve_initial_references("RootPOA");
             POA rpoa = POAHelper.narrow(root_poa);
             POA poa = rpoa.create_POA("myPolicy", null, new Policy[0]);
@@ -72,7 +90,7 @@ public class Demo {
             Object obj = global_orb.string_to_object(objRef);
             NamingContextExt root_context = NamingContextExtHelper.narrow(obj);
 
-            //å£°æ˜å‘½åç©ºé—´
+            //ÉùÃ÷ÃüÃû¿Õ¼ä
             NameComponent[] path = new NameComponent[2];
             path[0] = new NameComponent("ky", "class");
             path[1] = new NameComponent("instance", "EmsSessionFactory");
@@ -80,7 +98,7 @@ public class Demo {
 
             EmsSession_I emsSession_I = null;
             SessionImpl mySessionImpl = new SessionImpl();
-            //è·å¾—EMSå¼•ç”¨
+            //»ñµÃEMSÒıÓÃ
             EmsSessionFactory_I ems_ref = EmsSessionFactory_IHelper.narrow(emsSessionI);
             EmsSession_IHolder emsSessionHldr = new EmsSession_IHolder();
             NmsSession_IPOATie tieobj = new NmsSession_IPOATie(mySessionImpl, poa);
@@ -89,7 +107,7 @@ public class Demo {
             if (ems_ref != null) {
 
                 //ems_ref.getVersion();
-                //è·å–EMSä¼šè¯
+                //»ñÈ¡EMS»á»°
                 try {
                     ems_ref.getEmsSession(user, pw, nmsSession_ref, emsSessionHldr);
                     emsSession_I = emsSessionHldr.value;
@@ -98,117 +116,178 @@ public class Demo {
                     ems_ref.getEmsSession(user, pw, nmsSession_ref, emsSessionHldr);
                     emsSession_I = emsSessionHldr.value;
                 }
-
             }
 
-            //ä¾‹1ï¼šè·å–EMSä¿¡æ¯
+            //Àı1£º»ñÈ¡EMSĞÅÏ¢
             //getEMS(emsSession_I);
-
-
-            //ä¾‹3ï¼šæŸ¥è¯¢EMSç½‘ç®¡æ‰€æœ‰é¡¶å±‚å­ç½‘
+//            //Àı3£º²éÑ¯EMSÍø¹ÜËùÓĞ¶¥²ã×ÓÍø
             //getAllTopoLevelSubnetworks(emsSession_I);
-            //ä¾‹4ï¼šè·å–EMSç½‘ç®¡å’Œæ‰€æœ‰ç½‘å…ƒçš„æ´»åŠ¨å‘Šè­¦
-            //getAllEMSAndMEActiveAlarms(emsSession_I);
-            //ä¾‹5ï¼šè·å–EMSç½‘ç®¡é¡¶å±‚æ‰€æœ‰è¿æ¥
-            //getAllTopLevelTopologicLinks(emsSession_I);
-
-            //multiLayerSubnetwork.idl
-            //ä¾‹6ï¼šè·å–å­ç½‘ä¸‹æ‰€æœ‰ç½‘å…ƒ
-            String subnetname = "1";
-            //getMultiLayerSubnetworkAllManagedElements(subnetname,emsSession_I);
-            //ä¾‹7ï¼šè·å–å­ç½‘ä¸‹æ‰€æœ‰ç½‘å…ƒè¿çº¿
-            //getSubnetAllTopologicalLinks(subnetname,emsSession_I);
-            //ä¾‹8ï¼šæ ¹æ®å…¥å‚subnetNameæŸ¥æ‰¾å­ç½‘
+//            //Àı4£º»ñÈ¡EMSÍø¹ÜºÍËùÓĞÍøÔªµÄ»î¶¯¸æ¾¯
+           // getAllEMSAndMEActiveAlarms(emsSession_I);
+//            //Àı5£º»ñÈ¡EMSÍø¹Ü¶¥²ãËùÓĞÁ¬½Ó
+            getAllTopLevelTopologicLinks(emsSession_I);
+            //getAllTopoLevelSubnetworks(emsSession_I);
+//            //multiLayerSubnetwork.idl
+//            //Àı6£º»ñÈ¡×ÓÍøÏÂËùÓĞÍøÔª
+            String subnetname = "2";
+           // getMultiLayerSubnetworkAllManagedElements(subnetname,emsSession_I);
+//            //Àı7£º»ñÈ¡×ÓÍøÏÂËùÓĞÍøÔªÁ¬Ïß
+           //getSubnetAllTopologicalLinks(subnetname,emsSession_I);
+//            //Àı8£º¸ù¾İÈë²ÎsubnetName²éÕÒ×ÓÍø
             //getMultiLayerSubnetwork(subnetname,emsSession_I);
-
-
-            //managedElementManager.idl
-            //ä¾‹2ï¼šè·å–æ‰€æœ‰ç½‘å…ƒ
-            //getManagerElepments(emsSession_I);
-            //ä¾‹9ï¼šè·å–æŒ‡å®šç½‘å…ƒ
-            String name = "6";//è®¾å¤‡id
+//
+//
+//            //managedElementManager.idl
+//            //Àı2£º»ñÈ¡ËùÓĞÍøÔª
+           // getManagerElepments(emsSession_I);
+//            //Àı9£º»ñÈ¡Ö¸¶¨ÍøÔª
+            String name = "14";//Éè±¸id
             //getManagedElement(name,emsSession_I);
-            //ä¾‹10ï¼šè·å–æŒ‡å®šç½‘å…ƒçš„å‘Šè­¦
-            //getAllActiveAlarms(name,emsSession_I);
+//            //Àı10£º»ñÈ¡Ö¸¶¨ÍøÔªµÄ¸æ¾¯
+             //getAllActiveAlarms(name,emsSession_I);
+//
+//            //equipment.idl
+//            //»ñÈ¡Éè±¸µÄ¶Ë¿Ú
+            //getAllPTPs(name ,emsSession_I);
 
-            //equipment.idl
-            //è·å–è®¾å¤‡çš„ç«¯å£
-            //--------------getAllPTPs(name ,emsSession_I);
-
+            //getAllSupportedPTPs(name ,emsSession_I);
             //performance.idl
-            //è·å–æŒ‡å®šç«¯å£å½“å‰æ€§èƒ½
-            String port = "/rack=1/shelf=1/slot=1/port=8";
-            getPTPAllCurrentPMData(name,port,emsSession_I);
-
-            //KYLAND_alarmMgr.idl
-            //è·å–EMSå†å²å‘Šè­¦
-            //getAllHisAlarms(emsSession_I);
-
-            //è·å–æŒ‡å®šç½‘å…ƒçš„å†å²å‘Šè­¦
+            //»ñÈ¡Ö¸¶¨Éè±¸µ±Ç°ĞÔÄÜ
+            String port = "FX-18";
+            //System.out.println("ºÕË¹ÂüÉè±¸id:16:--ip:192.168.0.8ĞÔÄÜÊı¾İ²É¼¯");
+            //wagetPTPAllCurrentPMData(name,port,emsSession_I);
+//            System.out.println("KylandÉè±¸id:10--ip:192.168.0.3ĞÔÄÜÊı¾İ²É¼¯");
+            getPTPAllCurrentPMData("10",port,emsSession_I);
+//            System.out.println("MOXAÉè±¸id:19--ip:192.168.0.88ĞÔÄÜÊı¾İ²É¼¯");
+//            getPTPAllCurrentPMData("19",port,emsSession_I);
+//            System.out.println("·şÎñÆ÷Éè±¸id:2---ip:192.168.50.199ĞÔÄÜÊı¾İ²É¼¯");
+//            getPTPAllCurrentPMData("2",port,emsSession_I);
+//            String startTime = "2016-01-01 00:00:00";
+//            String endTime = "2019-01-01 00:00:00";
+//            getPTPHisCurrentPMData(name,port,startTime,endTime,emsSession_I);
+//            //KYLAND_alarmMgr.idl
+//            //»ñÈ¡EMSÀúÊ·¸æ¾¯
+          // getAllHisAlarms(emsSession_I);
+//
+//            //»ñÈ¡Ö¸¶¨ÍøÔªµÄÀúÊ·¸æ¾¯
             //getMEHisAlarms(name,emsSession_I);
 
-            //KYLAND_pmMgr.idl,ä¹‹å‰çš„ç‰ˆæœ¬æ˜¯è¿™æ ·ï¼Œæ­£åœ¨æŒ‰ä¹‹å‰æ²Ÿé€šä¿®æ”¹æ¥å£
-            //è·å–ç½‘å…ƒçš„æ€§èƒ½æ•°æ®ï¼ŒåŒ…æ‹¬CPUå½“å‰ä½¿ç”¨ç‡cpuCurrentUtilRateã€CPUå¹³å‡ä½¿ç”¨ç‡cpuLongTimeUtilRateã€å…¨éƒ¨å†…å­˜devMemoryTotalNumã€å¯ä½¿ç”¨å†…å­˜devMemoryFreeNumã€å·²ç»åˆ†é…å†…å­˜devMemoryAllocNum
+            //KYLAND_pmMgr.idl,Ö®Ç°µÄ°æ±¾ÊÇÕâÑù£¬ÕıÔÚ°´Ö®Ç°¹µÍ¨ĞŞ¸Ä½Ó¿Ú
+            //»ñÈ¡ÍøÔªµÄĞÔÄÜÊı¾İ£¬°üÀ¨CPUµ±Ç°Ê¹ÓÃÂÊcpuCurrentUtilRate¡¢CPUÆ½¾ùÊ¹ÓÃÂÊcpuLongTimeUtilRate¡¢È«²¿ÄÚ´ædevMemoryTotalNum¡¢¿ÉÊ¹ÓÃÄÚ´ædevMemoryFreeNum¡¢ÒÑ¾­·ÖÅäÄÚ´ædevMemoryAllocNum
             //getManagerElementPMData(name,emsSession_I);
 
-            //è·å–æ‰€æœ‰æ•…éšœä¿¡æ¯
+            //»ñÈ¡ËùÓĞ¹ÊÕÏĞÅÏ¢
             //Resourcemonitor_T[] resourcemonitor_Ts = getAllResourceMonitor(emsSession_I);
 
-            //è®¾ç½®æ•…éšœé˜ˆå€¼  //è®¾ç½®æ•…éšœé˜ˆå€¼ éœ€è¦å…ˆè·å–æ•…éšœé˜ˆå€¼æ¨¡å‹
-            //è·å–ç¬¬ä¸€ä¸ªé˜ˆå€¼æ¨¡å‹
+            //ÉèÖÃ¹ÊÕÏãĞÖµ  //ÉèÖÃ¹ÊÕÏãĞÖµ ĞèÒªÏÈ»ñÈ¡¹ÊÕÏãĞÖµÄ£ĞÍ
+            //»ñÈ¡µÚÒ»¸öãĞÖµÄ£ĞÍ
 //			 Resourcemonitor_T resourcemonitor_T = resourcemonitor_Ts[0];
-//			 //è®¾ç½®è¿™ä¸ªé˜ˆå€¼æ¨¡å‹ä¸»è¦é˜ˆå€¼
+//			 //ÉèÖÃÕâ¸öãĞÖµÄ£ĞÍÖ÷ÒªãĞÖµ
 //			 resourcemonitor_T.majorLimit = "50";
 //			 resourcemonitor_T.minorLimit = "40";
 //			 updateResourceMonitor(emsSession_I, resourcemonitor_T);
 //			
 //			
-//			//è·å–æŒ‡å®šè®¾å¤‡å®æ—¶æ€§èƒ½æ•°æ®
-            String deviceidString = "1";
-            //PMResource_T[] pmResource_Ts = getAllCurrentPMDataNew(emsSession_I, deviceidString);
+//			//»ñÈ¡Ö¸¶¨Éè±¸ÊµÊ±ĞÔÄÜÊı¾İ
+            //String deviceidString = "1";
+//            PMResource_T[] pmResource_Ts = getAllCurrentPMDataNew(emsSession_I, deviceidString);
 
 
-            //è·å–å†å²æ€§èƒ½æ•°æ®
+            //»ñÈ¡ÀúÊ·ĞÔÄÜÊı¾İ
            // String deviceidString = "1";
-            String resourceName = "";
-            String monitorItem = "";
-            int how_many = 100;
-            String startTime = "";
-            String endTime = "";
+//            String resourceName = "";
+//            String monitorItem = "";
+//            int how_many = 100;
+//            String startTime = "";
+//            String endTime = "";
            // PMResourceIterator_IHolder pmIt = new PMResourceIterator_IHolder();
-            //getAllHisCurrentPMData(emsSession_I, deviceidString, resourceName, monitorItem, how_many, startTime, endTime, pmIt);
+          // getAllHisCurrentPMData(emsSession_I, deviceidString, resourceName, monitorItem, how_many, startTime, endTime, pmIt);
 
-            //è·å–æ‰€æœ‰èµ„æºç±»å‹
-            String deviceid = "1";
+            //»ñÈ¡ËùÓĞ×ÊÔ´ÀàĞÍ
+            //String deviceid = "1";
             //String resourceTypes = getAllResourceType(emsSession_I, deviceid);
 
-            //è·å–æ‰€æœ‰èµ„æºåç§°
+            //»ñÈ¡ËùÓĞ×ÊÔ´Ãû³Æ
             //String resourceNames = getAllResourceName(emsSession_I, deviceid);
 
-            //è·å–æ‰€æœ‰æ€§èƒ½ç›‘è§†å™¨åç§°
-            String resourceType = "";
+            //»ñÈ¡ËùÓĞĞÔÄÜ¼àÊÓÆ÷Ãû³Æ
+            //String resourceType = "";
             //String resourceMonitorName = getAllResourceMonitorName(emsSession_I, deviceid, resourceType);
 
-            //æ–°å¢è¿›ç¨‹
+            //ĞÂÔö½ø³Ì
             //Process_T process = new Process_T();
             //addProcess(emsSession_I, process, deviceid);
 
-            //åˆ é™¤è¿›ç¨‹
+            //É¾³ı½ø³Ì
             //deleteProcess(emsSession_I, process, deviceid);
 
-            //è·å–æ‰€æœ‰è¿›ç¨‹
+            //»ñÈ¡ËùÓĞ½ø³Ì
             //Process_T[] process_ts = FindAllProcess(emsSession_I, deviceid);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
+    private static void getPTPHisCurrentPMData(String name, String port, String starttime,String endtime, EmsSession_I emsSession_I) {
+        try {
+            Common_IHolder comHldr = new Common_IHolder();
+            Common_I mgrIntf = null;
+            if (emsSession_I != null) {
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
+                emsSession_I.getManager("PerformanceManagement", comHldr);
+                mgrIntf = comHldr.value;
+            }
+            if (mgrIntf == null) {
+                return;
+            }
+            PerformanceManagementMgr_I emsMgr = PerformanceManagementMgr_IHelper.narrow(mgrIntf);
+
+
+            ManagedElement_THolder meLstTH = new ManagedElement_THolder();
+            PMTPSelect_T[] selectPorts = new PMTPSelect_T[1];
+
+            NameAndStringValue_T[] array = new NameAndStringValue_T[3];
+            array[0] = new NameAndStringValue_T("EMS", "KYLAND/kyvision");
+            array[1] = new NameAndStringValue_T("ManagedElement", name);
+            array[2] = new NameAndStringValue_T("PTP", port);
+            PMTPSelect_T pmtpSelect_t = new PMTPSelect_T();
+            pmtpSelect_t.name = array;
+            String s = "s";
+            String[] strings = new String[1];
+            strings[0] = s;
+            pmtpSelect_t.granularityList = strings;
+            String s1 = "s";
+            String[] strings1 = new String[1];
+            strings1[0] = s1;
+            pmtpSelect_t.pMLocationList = strings1;
+            short sh =1;
+            short[] shorts = new short[1];
+            shorts[0] = sh;
+            pmtpSelect_t.layerRateList = shorts;
+            selectPorts[0] = pmtpSelect_t;
+            PMDataList_THolder pmList = new PMDataList_THolder();
+            PMDataIterator_IHolder pmIt = new PMDataIterator_IHolder();
+            String[] parameter = new String[]{encoding("´ÅÅÌÀûÓÃÂÊĞÔÄÜ¼àÊÓ:C"), "ifDescr", "ifOperstatus", "ifInOctets", "ifInUcastPkts", "ifInNUcastPkts", "ifInDiscards", "ifInErrors",
+                    "ifOutOctets", "ifOutUcastPkts", "ifOutNUcastPkts", "ifOutDiscards", "ifOutErrors", "RxPower", "TxPower"};
+            int how_many = 100;
+            if (emsMgr != null) {
+                emsMgr.getTPHistoryPMData(selectPorts, parameter,starttime,endtime, how_many, pmList, pmIt);
+            }
+
+            System.out.println("eventList.value.length=" + pmList.value[0].pmMeasurementList[0].pmParameterName);
+
+
+
+        } catch (ProcessingFailureException e) {
+            e.printStackTrace();
+        }
+    }
 //    private static void getManagerElementPMData(String name, EmsSession_I emsSession_I) {
 //        try {
 //            Common_IHolder comHldr = new Common_IHolder();
 //            Common_I mgrIntf = null;
 //            if (emsSession_I != null) {
-//                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+//                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
 //                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
 //                mgrIntf = comHldr.value;
 //            }
@@ -239,91 +318,87 @@ public class Demo {
 //    }
 
 
-//    private static void getMEHisAlarms(String name, EmsSession_I emsSession_I) {
-//        try {
-//            Common_IHolder comHldr = new Common_IHolder();
-//            Common_I mgrIntf = null;
-//            if (emsSession_I != null) {
-//                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
-//                emsSession_I.getManager("KYLAND_alarmMgr", comHldr);
-//                mgrIntf = comHldr.value;
-//            }
-//            if (mgrIntf == null) {
-//                return;
-//            }
-//            KYLAND_alarmMgr_I emsMgr = KYLAND_alarmMgr_IHelper.narrow(mgrIntf);
-//
-//
-//            String[] excludeProbCauseList = new String[0];
-//            PerceivedSeverity_T[] excludeSeverityList = new PerceivedSeverity_T[0];
-//            int[] alarmtypeList = new int[0];
-//            EventList_THolder eventList = new EventList_THolder();
-//            EventIterator_IHolder eventIt = new EventIterator_IHolder();
-//            int how_many = 100;
-//            NameAndStringValue_T[] array = new NameAndStringValue_T[2];
-//            array[0] = new NameAndStringValue_T("EMS", "KYLAND/kyvision");
-//            array[1] = new NameAndStringValue_T("ManagedElement", name);
-//
-//            DateFormat stdFormatterInMillis = new SimpleDateFormat("yyyyMMddHHmmss");
-//            String endtime = stdFormatterInMillis.format(new Date());
-//            String starttime = "20170601000000";
-//            if (emsMgr != null) {
-//                emsMgr.getMEHisAlarms(excludeProbCauseList, excludeSeverityList, alarmtypeList, array, how_many, starttime, endtime, eventList, eventIt);
-//            }
-//
-//            System.out.println("eventList.value.length=" + eventList.value.length);
-//
-//        } catch (ProcessingFailureException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    private static void getMEHisAlarms(String name, EmsSession_I emsSession_I) {
+        try {
+            Common_IHolder comHldr = new Common_IHolder();
+            Common_I mgrIntf = null;
+            if (emsSession_I != null) {
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
+                emsSession_I.getManager("KYLAND_alarmMgr", comHldr);
+                mgrIntf = comHldr.value;
+            }
+            if (mgrIntf == null) {
+                return;
+            }
+            KYLAND_alarmMgr_I emsMgr = KYLAND_alarmMgr_IHelper.narrow(mgrIntf);
 
 
-//    private static void getAllHisAlarms(EmsSession_I emsSession_I) {
-//
-//        try {
-//            Common_IHolder comHldr = new Common_IHolder();
-//            Common_I mgrIntf = null;
-//            if (emsSession_I != null) {
-//                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
-//                emsSession_I.getManager("KYLAND_alarmMgr", comHldr);
-//                mgrIntf = comHldr.value;
-//            }
-//            if (mgrIntf == null) {
-//                return;
-//            }
-//            KYLAND_alarmMgr_I emsMgr = KYLAND_alarmMgr_IHelper.narrow(mgrIntf);
-//
-//
-//            String[] excludeProbCauseList = new String[0];
-//            PerceivedSeverity_T[] excludeSeverityList = new PerceivedSeverity_T[0];
-//            int[] alarmtypeList = new int[0];
-//            EventList_THolder eventList = new EventList_THolder();
-//            EventIterator_IHolder eventIt = new EventIterator_IHolder();
-//            int how_many = 100;
-//
-//
-//            DateFormat stdFormatterInMillis = new SimpleDateFormat("yyyyMMddHHmmss");
-//            String endtime = stdFormatterInMillis.format(new Date());
-//            String starttime = "20170601000000";
-//            if (emsMgr != null) {
-//                emsMgr.getAllHisAlarms(excludeProbCauseList, excludeSeverityList, alarmtypeList, how_many, starttime, endtime, eventList, eventIt);
-//            }
-//
-//            System.out.println("eventList.value.length=" + eventList.value.length);
-//
-//        } catch (ProcessingFailureException e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
+            String[] excludeProbCauseList = new String[0];
+            PerceivedSeverity_T[] excludeSeverityList = new PerceivedSeverity_T[0];
+            int[] alarmtypeList = new int[0];
+            EventList_THolder eventList = new EventList_THolder();
+            EventIterator_IHolder eventIt = new EventIterator_IHolder();
+            int how_many = 1000;
+            NameAndStringValue_T[] array = new NameAndStringValue_T[2];
+            array[0] = new NameAndStringValue_T("EMS", "KYLAND/kyvision");
+            array[1] = new NameAndStringValue_T("ManagedElement", name);
+
+            DateFormat stdFormatterInMillis = new SimpleDateFormat("yyyyMMddHHmmss");
+            String endtime = stdFormatterInMillis.format(new Date());
+            String starttime = "20170601000000";
+            if (emsMgr != null) {
+                emsMgr.getMEHisAlarms(excludeProbCauseList, excludeSeverityList, alarmtypeList, array, how_many, starttime, endtime, eventList, eventIt);
+            }
+            System.out.println("eventList.value.length=" + eventList.value.length);
+        } catch (ProcessingFailureException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private static void getAllHisAlarms(EmsSession_I emsSession_I) {
+
+        try {
+            Common_IHolder comHldr = new Common_IHolder();
+            Common_I mgrIntf = null;
+            if (emsSession_I != null) {
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
+                emsSession_I.getManager("KYLAND_alarmMgr", comHldr);
+                mgrIntf = comHldr.value;
+            }
+            if (mgrIntf == null) {
+                return;
+            }
+            KYLAND_alarmMgr_I emsMgr = KYLAND_alarmMgr_IHelper.narrow(mgrIntf);
+
+
+            String[] excludeProbCauseList = new String[0];
+            PerceivedSeverity_T[] excludeSeverityList = new PerceivedSeverity_T[0];
+            int[] alarmtypeList = new int[0];
+            EventList_THolder eventList = new EventList_THolder();
+            EventIterator_IHolder eventIt = new EventIterator_IHolder();
+            int how_many = 100;
+
+
+            DateFormat stdFormatterInMillis = new SimpleDateFormat("yyyyMMddHHmmss");
+            String endtime = stdFormatterInMillis.format(new Date());
+            String starttime = "20170601000000";
+            if (emsMgr != null) {
+                emsMgr.getAllHisAlarms(excludeProbCauseList, excludeSeverityList, alarmtypeList, how_many, starttime, endtime, eventList, eventIt);
+            }
+            System.out.println("eventList.value.length=" + eventList.value.length);
+        } catch (ProcessingFailureException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     private static void getPTPAllCurrentPMData(String name, String port, EmsSession_I emsSession_I) {
         try {
             Common_IHolder comHldr = new Common_IHolder();
             Common_I mgrIntf = null;
             if (emsSession_I != null) {
-                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
                 emsSession_I.getManager("PerformanceManagement", comHldr);
                 mgrIntf = comHldr.value;
             }
@@ -364,7 +439,16 @@ public class Demo {
                 emsMgr.getAllCurrentPMData(selectPorts, parameter, how_many, pmList, pmIt);
             }
 
-            System.out.println("eventList.value.length=" + pmList.value.length);
+            System.out.println("×ÊÔ´Êı:" + pmList.value.length);
+            for(int i=0;i<pmList.value.length;i++)
+            {
+                DongtuClient.ToGBKEncode(pmList.value[i].tpName[2].value+":");
+                for(int j=0;j<pmList.value[i].pmMeasurementList.length;j++)
+                {
+                    DongtuClient.ToGBKEncode(pmList.value[i].pmMeasurementList[j].pmParameterName+" : "+pmList.value[i].pmMeasurementList[j].value);
+                }
+
+            }
 
         } catch (ProcessingFailureException e) {
             e.printStackTrace();
@@ -376,7 +460,7 @@ public class Demo {
             Common_IHolder comHldr = new Common_IHolder();
             Common_I mgrIntf = null;
             if (emsSession_I != null) {
-                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
                 emsSession_I.getManager("ManagedElement", comHldr);
                 mgrIntf = comHldr.value;
             }
@@ -384,7 +468,7 @@ public class Demo {
                 return;
             }
             ManagedElementMgr_I emsMgr = ManagedElementMgr_IHelper.narrow(mgrIntf);
-            ManagedElement_THolder meLstTH = new ManagedElement_THolder();
+            //ManagedElement_THolder meLstTH = new ManagedElement_THolder();
             NameAndStringValue_T[] array = new NameAndStringValue_T[2];
             array[0] = new NameAndStringValue_T("EMS", "KYLAND/kyvision");
             array[1] = new NameAndStringValue_T("ManagedElement", name);
@@ -398,7 +482,48 @@ public class Demo {
             if (emsMgr != null) {
                 emsMgr.getAllPTPs(array,lay,con, how_many, eventList, eventIt);
             }
+            for(int i=0;i<eventList.value.length;i++)
+            {
+                DongtuClient.ToGBKEncode(eventList.value[i].name[2].value);
+            }
+            System.out.println("eventList.value.length=" + eventList.value.length);
 
+        } catch (ProcessingFailureException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void getAllSupportedPTPs(String name, EmsSession_I emsSession_I) {
+        try {
+            Common_IHolder comHldr = new Common_IHolder();
+            Common_I mgrIntf = null;
+            if (emsSession_I != null) {
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
+                emsSession_I.getManager("EquipmentInventory", comHldr);
+                mgrIntf = comHldr.value;
+            }
+            if (mgrIntf == null) {
+                return;
+            }
+            EquipmentInventoryMgr_I emsMgr = EquipmentInventoryMgr_IHelper.narrow(mgrIntf);
+            ManagedElement_THolder meLstTH = new ManagedElement_THolder();
+            NameAndStringValue_T[] array = new NameAndStringValue_T[2];
+            array[0] = new NameAndStringValue_T("EMS", "KYLAND/kyvision");
+            array[1] = new NameAndStringValue_T("ManagedElement", name);
+            TerminationPointList_THolder eventList = new TerminationPointList_THolder();
+            TerminationPointIterator_IHolder eventIt = new TerminationPointIterator_IHolder();
+            short[] lay = new short[1];
+            lay[0] = 1;
+            short[] con = new short[1];
+            con[0] = 1;
+            int how_many = 100;
+            if (emsMgr != null) {
+                emsMgr.getAllSupportedPTPs(array, how_many, eventList, eventIt);
+            }
+            for(int i=0;i<eventList.value.length;i++)
+            {
+                DongtuClient.ToGBKEncode(eventList.value[i].name[2].value);
+            }
             System.out.println("eventList.value.length=" + eventList.value.length);
 
         } catch (ProcessingFailureException e) {
@@ -411,7 +536,7 @@ public class Demo {
             Common_IHolder comHldr = new Common_IHolder();
             Common_I mgrIntf = null;
             if (emsSession_I != null) {
-                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
                 emsSession_I.getManager("ManagedElement", comHldr);
                 mgrIntf = comHldr.value;
             }
@@ -435,8 +560,32 @@ public class Demo {
             if (emsMgr != null) {
                 emsMgr.getAllActiveAlarms(array, excludeProbCauseList, excludeSeverityList, how_many, eventList, eventIt);
             }
-          //  CosNotification.StructuredEvent[] list = eventList.value;
-            //printManagedElement_T(meLstTH.value);
+            StructuredEvent mgdElmT = new StructuredEvent();
+            if (eventList.value != null) {
+                StructuredEvent[] t_array;
+                int j = (t_array = eventList.value).length;
+                for (int i = 0; i < j; i++) {
+                    if ((mgdElmT = t_array[i]) != null) {
+                        java.lang.Object obj = mgdElmT;
+                        DongtuClient.generateMsg(obj,"NT_ALARM");
+                    }
+                }
+                if (eventIt.value != null) {
+                    boolean bool = true;
+                    while (bool) {
+                        bool = eventIt.value.next_n(how_many, eventList);
+                        if (eventList.value != null) {
+                            int k = (t_array = eventList.value).length;
+                            for (j = 0; j < k; j++) {
+                                if ((mgdElmT = t_array[j]) != null) {
+                                    java.lang.Object obj = mgdElmT;
+                                    DongtuClient.generateMsg(obj,"NT_ALARM");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
         } catch (ProcessingFailureException e) {
             e.printStackTrace();
@@ -448,7 +597,7 @@ public class Demo {
             Common_IHolder comHldr = new Common_IHolder();
             Common_I mgrIntf = null;
             if (emsSession_I != null) {
-                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
                 emsSession_I.getManager("ManagedElement", comHldr);
                 mgrIntf = comHldr.value;
             }
@@ -481,7 +630,7 @@ public class Demo {
             Common_IHolder comHldr = new Common_IHolder();
             Common_I mgrIntf = null;
             if (emsSession_I != null) {
-                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
                 emsSession_I.getManager("MultiLayerSubnetwork", comHldr);
                 mgrIntf = comHldr.value;
             }
@@ -501,7 +650,7 @@ public class Demo {
                 emsMgr.getMultiLayerSubnetwork(array, meLstTH);
             }
 
-            System.out.println("meLstTH.value.length=" + meLstTH.value);
+            System.out.println("meLstTH.value.length=" + meLstTH.value.nativeEMSName);
 
 
         } catch (ProcessingFailureException e) {
@@ -514,7 +663,7 @@ public class Demo {
             Common_IHolder comHldr = new Common_IHolder();
             Common_I mgrIntf = null;
             if (emsSession_I != null) {
-                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
                 emsSession_I.getManager("MultiLayerSubnetwork", comHldr);
                 mgrIntf = comHldr.value;
             }
@@ -542,7 +691,7 @@ public class Demo {
             Common_IHolder comHldr = new Common_IHolder();
             Common_I mgrIntf = null;
             if (emsSession_I != null) {
-                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
                 emsSession_I.getManager("MultiLayerSubnetwork", comHldr);
                 mgrIntf = comHldr.value;
             }
@@ -563,7 +712,6 @@ public class Demo {
             if (emsMgr != null) {
                 emsMgr.getAllManagedElements(array, how_many, meLstTH, meItrIH);
             }
-
             System.out.println("meLstTH.value.length=" + meLstTH.value.length);
 
 
@@ -577,7 +725,7 @@ public class Demo {
             Common_IHolder comHldr = new Common_IHolder();
             Common_I mgrIntf = null;
             if (emsSession_I != null) {
-                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
                 emsSession_I.getManager("EMS", comHldr);
                 mgrIntf = comHldr.value;
             }
@@ -594,11 +742,10 @@ public class Demo {
             if (emsMgr != null) {
                 emsMgr.getAllTopLevelTopologicalLinks(how_many, linkList, linkListIt);
             }
-
             if (linkList.value != null) {
                 TopologicalLink_T[] array = linkList.value;
                 for (int i = 0; i < array.length; i++) {
-                    System.out.println("zEndTP=" + array[i].zEndTP);
+                    //System.out.println("zEndTP=" + array[i].zEndTP);
                     for (NameAndStringValue_T nsv : array[i].zEndTP) {
                         printNameAndStringValue_T(nsv);
                     }
@@ -618,7 +765,7 @@ public class Demo {
             Common_IHolder comHldr = new Common_IHolder();
             Common_I mgrIntf = null;
             if (emsSession_I != null) {
-                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
                 emsSession_I.getManager("EMS", comHldr);
                 mgrIntf = comHldr.value;
             }
@@ -627,9 +774,7 @@ public class Demo {
             }
             EMSMgr_I emsMgr = EMSMgr_IHelper.narrow(mgrIntf);
 
-            int how_many = 10;
-
-
+            int how_many = 1000;
             String[] excludeProbCauseList = new String[0];
             PerceivedSeverity_T[] excludeSeverityList = new PerceivedSeverity_T[0];
             EventList_THolder eventList = new EventList_THolder();
@@ -637,7 +782,7 @@ public class Demo {
 
             if (emsMgr != null) {
                 emsMgr.getAllEMSAndMEActiveAlarms(excludeProbCauseList, excludeSeverityList, how_many, eventList, eventIt);
-
+                System.out.println(eventList.value.length);
             }
 //            CosNotification.StructuredEvent[] alarmarray = eventList.value;
 //
@@ -660,7 +805,7 @@ public class Demo {
             Common_IHolder comHldr = new Common_IHolder();
             Common_I mgrIntf = null;
             if (emsSession_I != null) {
-                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
                 emsSession_I.getManager("EMS", comHldr);
                 mgrIntf = comHldr.value;
             }
@@ -683,14 +828,14 @@ public class Demo {
     }
 
     /*
-     * ä¾‹ä¸€ï¼šè·å–EMSä¿¡æ¯
+     * ÀıÒ»£º»ñÈ¡EMSĞÅÏ¢
      */
     private static void getEMS(EmsSession_I emsSession_I) {
         try {
             Common_IHolder comHldr = new Common_IHolder();
             Common_I mgrIntf = null;
             if (emsSession_I != null) {
-                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
                 emsSession_I.getManager("EMS", comHldr);
                 mgrIntf = comHldr.value;
             }
@@ -710,21 +855,21 @@ public class Demo {
     }
 
     /*
-     * ä¾‹äºŒï¼šè·å–æ‰€æœ‰ç½‘å…ƒ
+     * Àı¶ş£º»ñÈ¡ËùÓĞÍøÔª
      */
     private static void getManagerElepments(EmsSession_I emsSession_I) {
         try {
             Common_IHolder comHldr = new Common_IHolder();
             Common_I mgrIntf = null;
             if (emsSession_I != null) {
-                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
                 emsSession_I.getManager("ManagedElement", comHldr);
                 mgrIntf = comHldr.value;
             }
             if (mgrIntf == null) {
                 return;
             }
-            int count = 2;
+            int count = 100;
             ManagedElementMgr_I mgrElmMgrI = ManagedElementMgr_IHelper.narrow(mgrIntf);
             ManagedElement_T mgdElmT = new ManagedElement_T();
             ManagedElementList_THolder meLstTH = new ManagedElementList_THolder();
@@ -738,6 +883,10 @@ public class Demo {
                 for (int i = 0; i < j; i++) {
                     if ((mgdElmT = arrayOfManagedElement_T[i]) != null) {
                         printManagedElement_T(mgdElmT);
+//                        System.out.println("Éè±¸id:"+mgdElmT.name[1].value+"×ÊÔ´Êı¾İ²É¼¯");
+//                        //getAllPTPs(mgdElmT.name[1].value,emsSession_I);
+//                        System.out.println("Éè±¸id:"+mgdElmT.name[1].value+"ĞÔÄÜÊı¾İ²É¼¯");
+//                        getPTPAllCurrentPMData(mgdElmT.name[1].value,"123",emsSession_I);
                     }
                 }
                 if (meItrIH.value != null) {
@@ -760,13 +909,13 @@ public class Demo {
         }
     }
 
-    //è·å–æŒ‡å®šEMSçš„æ‰€æœ‰æ•…éšœç›‘è§†å™¨åç§°
+    //»ñÈ¡Ö¸¶¨EMSµÄËùÓĞ¹ÊÕÏ¼àÊÓÆ÷Ãû³Æ
 //    private static void getAllResourceMonitorName(EmsSession_I emsSession_I) {
 //        try {
 //            Common_IHolder comHldr = new Common_IHolder();
 //            Common_I mgrIntf = null;
 //            if (emsSession_I != null) {
-//                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+//                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
 //                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
 //                mgrIntf = comHldr.value;
 //            }
@@ -786,13 +935,13 @@ public class Demo {
 //        }
 //    }
 //
-//    //è·å–æŒ‡å®šEMSçš„æ‰€æœ‰æ•…éšœç›‘è§†å™¨
+//    //»ñÈ¡Ö¸¶¨EMSµÄËùÓĞ¹ÊÕÏ¼àÊÓÆ÷
 //    private static Resourcemonitor_T[] getAllResourceMonitor(EmsSession_I emsSession_I) {
 //        try {
 //            Common_IHolder comHldr = new Common_IHolder();
 //            Common_I mgrIntf = null;
 //            if (emsSession_I != null) {
-//                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+//                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
 //                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
 //                mgrIntf = comHldr.value;
 //            }
@@ -851,7 +1000,8 @@ public class Demo {
             printNameAndStringValue_T(nsv);
         }
         System.out.println("userLabel          =" + mElement_T.userLabel);
-        System.out.println("nativeEMSName      =" + mElement_T.nativeEMSName);
+        System.out.println("nativeEMSName      ="  );
+        DongtuClient.ToGBKEncode(mElement_T.nativeEMSName);
         System.out.println("owner              =" + mElement_T.owner);
         System.out.println("location           =" + mElement_T.location);
         System.out.println("version            =" + mElement_T.version);
@@ -902,13 +1052,13 @@ public class Demo {
         return pMTPSelect_T;
     }
 
-//    //è®¾ç½®æ•…éšœé˜ˆå€¼
+//    //ÉèÖÃ¹ÊÕÏãĞÖµ
 //    private static void updateResourceMonitor(EmsSession_I emsSession_I, Resourcemonitor_T resourcemonitor_T) {
 //        try {
 //            Common_IHolder comHldr = new Common_IHolder();
 //            Common_I mgrIntf = null;
 //            if (emsSession_I != null) {
-//                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+//                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
 //                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
 //                mgrIntf = comHldr.value;
 //            }
@@ -928,13 +1078,13 @@ public class Demo {
 //        }
 //    }
 //
-//    //è·å–å®æ—¶æ€§èƒ½æ•°æ®  deviceid
+//    //»ñÈ¡ÊµÊ±ĞÔÄÜÊı¾İ  deviceid
 //    private static PMResource_T[] getAllCurrentPMDataNew(EmsSession_I emsSession_I, String deviceid) {
 //        try {
 //            Common_IHolder comHldr = new Common_IHolder();
 //            Common_I mgrIntf = null;
 //            if (emsSession_I != null) {
-//                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+//                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
 //                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
 //                mgrIntf = comHldr.value;
 //            }
@@ -959,13 +1109,13 @@ public class Demo {
 //
 //    }
 //
-//    //è·å–å†å²æ€§èƒ½æ•°æ®
+//    //»ñÈ¡ÀúÊ·ĞÔÄÜÊı¾İ
 //    private static PMResource_T[] getAllHisCurrentPMData(EmsSession_I emsSession_I, String deviceid, String resourceName, String monitorItem, int how_many, String startTime, String endTime, PMResourceIterator_IHolder pmIt) {
 //        try {
 //            Common_IHolder comHldr = new Common_IHolder();
 //            Common_I mgrIntf = null;
 //            if (emsSession_I != null) {
-//                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+//                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
 //                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
 //                mgrIntf = comHldr.value;
 //            }
@@ -993,13 +1143,13 @@ public class Demo {
 //        return null;
 //    }
 //
-//    //è·å–æ‰€æœ‰èµ„æºç±»å‹
+//    //»ñÈ¡ËùÓĞ×ÊÔ´ÀàĞÍ
 //    private static String getAllResourceType(EmsSession_I emsSession_I, String deviceid) {
 //        try {
 //            Common_IHolder comHldr = new Common_IHolder();
 //            Common_I mgrIntf = null;
 //            if (emsSession_I != null) {
-//                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+//                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
 //                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
 //                mgrIntf = comHldr.value;
 //            }
@@ -1021,13 +1171,13 @@ public class Demo {
 //        return null;
 //    }
 //
-//    //è·å–æ‰€æœ‰èµ„æºåç§°
+//    //»ñÈ¡ËùÓĞ×ÊÔ´Ãû³Æ
 //    private static String getAllResourceName(EmsSession_I emsSession_I, String deviceid) {
 //        try {
 //            Common_IHolder comHldr = new Common_IHolder();
 //            Common_I mgrIntf = null;
 //            if (emsSession_I != null) {
-//                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+//                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
 //                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
 //                mgrIntf = comHldr.value;
 //            }
@@ -1049,13 +1199,13 @@ public class Demo {
 //        return null;
 //    }
 //
-//    //è·å–æ‰€æœ‰æ€§èƒ½ç›‘è§†å™¨åç§°
+//    //»ñÈ¡ËùÓĞĞÔÄÜ¼àÊÓÆ÷Ãû³Æ
 //    private static String getAllResourceMonitorName(EmsSession_I emsSession_I, String deviceid, String resourceType) {
 //        try {
 //            Common_IHolder comHldr = new Common_IHolder();
 //            Common_I mgrIntf = null;
 //            if (emsSession_I != null) {
-//                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+//                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
 //                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
 //                mgrIntf = comHldr.value;
 //            }
@@ -1079,13 +1229,13 @@ public class Demo {
 //        return null;
 //    }
 //
-//    //æ–°å¢è¿›ç¨‹
+//    //ĞÂÔö½ø³Ì
 //    private static void addProcess(EmsSession_I emsSession_I, Process_T process, String deviceid) {
 //        try {
 //            Common_IHolder comHldr = new Common_IHolder();
 //            Common_I mgrIntf = null;
 //            if (emsSession_I != null) {
-//                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+//                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
 //                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
 //                mgrIntf = comHldr.value;
 //            }
@@ -1105,13 +1255,13 @@ public class Demo {
 //        }
 //    }
 //
-//    //åˆ é™¤è¿›ç¨‹
+//    //É¾³ı½ø³Ì
 //    private static void deleteProcess(EmsSession_I emsSession_I, Process_T process, String deviceid) {
 //        try {
 //            Common_IHolder comHldr = new Common_IHolder();
 //            Common_I mgrIntf = null;
 //            if (emsSession_I != null) {
-//                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+//                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
 //                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
 //                mgrIntf = comHldr.value;
 //            }
@@ -1129,13 +1279,13 @@ public class Demo {
 //        }
 //    }
 //
-//    //è·å–æ‰€æœ‰è¿›ç¨‹
+//    //»ñÈ¡ËùÓĞ½ø³Ì
 //    private static Process_T[] FindAllProcess(EmsSession_I emsSession_I, String deviceid) {
 //        try {
 //            Common_IHolder comHldr = new Common_IHolder();
 //            Common_I mgrIntf = null;
 //            if (emsSession_I != null) {
-//                //é€šè¿‡Sessionè·å–å¯¹åº”çš„ç®¡ç†æ¨¡å—çš„å¼•ç”¨
+//                //Í¨¹ıSession»ñÈ¡¶ÔÓ¦µÄ¹ÜÀíÄ£¿éµÄÒıÓÃ
 //                emsSession_I.getManager("KYLAND_pmMgr", comHldr);
 //                mgrIntf = comHldr.value;
 //            }
@@ -1159,4 +1309,16 @@ public class Demo {
 //        return null;
 //    }
 
+    public static final String encoding(String str)
+    {
+        try
+        {
+            return new String(str.getBytes(),"iso8859-1");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
